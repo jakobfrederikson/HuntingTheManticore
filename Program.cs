@@ -7,11 +7,14 @@ int MANTICORE_DISTANCE;
 if (vsComputer)
 {
     Random random = new Random();
-    MANTICORE_DISTANCE = random.Next(-1, 101);
+    MANTICORE_DISTANCE = random.Next(0, 100);
 }
 else
 {
     MANTICORE_DISTANCE = AskForNumberInRange("Player 1, how far away from the city do you want to station the manticore?", 0, 100);
+
+    // Clear screen, don't give away the game
+    Console.Clear();
 }
 
 const int CITY_MAX_HEALTH = 15;
@@ -25,11 +28,24 @@ int round = 1;
 // Game loop
 while (true)
 {
-    // Print new round dashes
-    System.Console.WriteLine(new string('-', 80));
+    // Check if manticore is dead
+    if (manticoreHealth <= 0)
+    {
+        WriteLineWithColour("The Manticore has been destroyed! The city of Consolas has been saved!", ConsoleColor.Black, ConsoleColor.Green);
+        break;
+    }
 
-    // Display current game status
-    System.Console.WriteLine($"STATUS: Round {round}  City: {cityHealth}/{CITY_MAX_HEALTH}  Manticore: {manticoreHealth}/{MANTICORE_MAX_HEALTH}");
+    // Check if city is dead
+    if (cityHealth <= 0)
+    {
+        WriteLineWithColour("The Manticore has destroyed the city! It roars in terror, whilst the townspeople flee for their lives...", ConsoleColor.Black, ConsoleColor.Red);
+        break;
+    }
+
+    // Print new round dashes
+    WriteLineWithColour(new string('-', 80), ConsoleColor.DarkBlue);
+
+    DisplayStatus(round, cityHealth, manticoreHealth);    
     
     // Calculate and display cannon damage for the current round
     int cannonDamage = CalculateCannonDamage(round);
@@ -41,24 +57,46 @@ while (true)
     if (CannonHitManticore(desiredCannonRange))
         manticoreHealth -= cannonDamage;
 
-    // Check if manticore is dead
-    if (manticoreHealth <= 0)
-    {
-        System.Console.WriteLine("The Manticore has been destroyed! The city of Consolas has been saved!");
-        break;
-    }
-
-    // Check if city is dead
-    if (cityHealth == 0)
-    {
-        System.Console.WriteLine("The Manticore has destroyed the city! It roars in terror, whilst the towns people flee for their lives...");
-        break;
-    }
-
     // Manticore terrorizes city
     cityHealth--;
 
     round++;
+}
+
+void DisplayStatus(int currentRound, int currentCityHealth, int currentManticoreHealth)
+{
+    System.Console.Write($"STATUS: Round {round}  ");
+
+    WriteWithColour("City: ", ConsoleColor.Cyan);
+    if (cityHealth > 10)
+    {
+        WriteWithColour($"{cityHealth}/{CITY_MAX_HEALTH}  ", ConsoleColor.Green);
+    }
+    else if (cityHealth > 5 && cityHealth <= 10)
+    {
+        WriteWithColour($"{cityHealth}/{CITY_MAX_HEALTH}  ", ConsoleColor.Yellow);
+    }
+    else
+    {
+        WriteWithColour($"{cityHealth}/{CITY_MAX_HEALTH}  ", ConsoleColor.Red);
+    }
+
+    WriteWithColour("Manticore: ", ConsoleColor.DarkRed);
+    if (manticoreHealth > 7)
+    {
+        WriteWithColour($"{manticoreHealth}/{MANTICORE_MAX_HEALTH}", ConsoleColor.Green);
+    }
+    else if (manticoreHealth > 4 && manticoreHealth <= 7)
+    {
+        WriteWithColour($"{manticoreHealth}/{MANTICORE_MAX_HEALTH}", ConsoleColor.Yellow);
+    }
+    else
+    {
+        WriteWithColour($"{manticoreHealth}/{MANTICORE_MAX_HEALTH}", ConsoleColor.Red);
+    }
+
+    // New line
+    System.Console.WriteLine("");
 }
 
 int CalculateCannonDamage(int currentRound)
@@ -86,17 +124,17 @@ bool CannonHitManticore(int desiredCannonRange)
 {
     if (desiredCannonRange == MANTICORE_DISTANCE)
     {
-        System.Console.WriteLine("That round was a DIRECT HIT!");
+        WriteLineWithColour("That round was a DIRECT HIT!", ConsoleColor.Green);
         return true;
     }
     else if (desiredCannonRange > MANTICORE_DISTANCE)
     {
-        System.Console.WriteLine("That round OVERSHOT the target.");
+        WriteLineWithColour("That round OVERSHOT the target.", ConsoleColor.Yellow);
     }
         
     else if (desiredCannonRange < MANTICORE_DISTANCE)
     {
-        System.Console.WriteLine("That round FELL SHORT of the target.");
+        WriteLineWithColour("That round FELL SHORT of the target.", ConsoleColor.Yellow);
     }        
 
     return false;
@@ -106,7 +144,7 @@ int AskForNumberInRange(string text, int min, int max)
 {
     System.Console.Write($"{text} ");
     int number;
-    
+
     try
     {
         number = Convert.ToInt32(Console.ReadLine());
@@ -123,4 +161,32 @@ int AskForNumberInRange(string text, int min, int max)
     }    
 
     return number;
+}
+
+void WriteWithColour(string text, ConsoleColor foregroundColor, ConsoleColor backgroundColor = ConsoleColor.Black)
+{
+    ConsoleColor defaultForegroundColor = Console.ForegroundColor;
+    ConsoleColor defaultBackgroundColor = Console.BackgroundColor;
+
+    Console.ForegroundColor = foregroundColor;
+    Console.BackgroundColor = backgroundColor;
+
+    Console.Write(text);
+
+    Console.ForegroundColor = defaultForegroundColor;
+    Console.BackgroundColor = defaultBackgroundColor;
+}
+
+void WriteLineWithColour(string text, ConsoleColor foregroundColor, ConsoleColor backgroundColor = ConsoleColor.Black)
+{
+    ConsoleColor defaultForegroundColor = Console.ForegroundColor;
+    ConsoleColor defaultBackgroundColor = Console.BackgroundColor;
+
+    Console.ForegroundColor = foregroundColor;
+    Console.BackgroundColor = backgroundColor;
+
+    Console.WriteLine(text);
+
+    Console.ForegroundColor = defaultForegroundColor;
+    Console.BackgroundColor = defaultBackgroundColor;
 }

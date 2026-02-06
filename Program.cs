@@ -7,7 +7,7 @@ int MANTICORE_DISTANCE;
 if (vsComputer)
 {
     Random random = new Random();
-    MANTICORE_DISTANCE = random.Next(0, 100);
+    MANTICORE_DISTANCE = random.Next(0, 101);
 }
 else
 {
@@ -18,10 +18,10 @@ else
 }
 
 const int CITY_MAX_HEALTH = 15;
-int cityHealth = 15;
+int cityHealth = CITY_MAX_HEALTH;
 
 const int MANTICORE_MAX_HEALTH = 10;
-int manticoreHealth = 10;
+int manticoreHealth = MANTICORE_MAX_HEALTH;
 
 int round = 1;
 
@@ -49,7 +49,7 @@ while (true)
     
     // Calculate and display cannon damage for the current round
     int cannonDamage = CalculateCannonDamage(round);
-    System.Console.WriteLine($"The cannon is expected to deal {cannonDamage} this round.");
+    System.Console.WriteLine($"The cannon is expected to deal {cannonDamage} damage this round.");
 
     // Determine and decide the shot outcome
     int desiredCannonRange = AskForNumberInRange("Enter desired cannon range:", 0, 100);
